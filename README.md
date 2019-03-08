@@ -28,7 +28,7 @@ It was stated that private set looks almost exactly as public one so we should n
 There can be only 64 such shapes in the image. So how to determine which shape is what?
 #### Circle shapes
 Circle shapes have noticeably more vertices on the convex hull since such hull is approximating a circle. If barycenter is white we definetly have a circle. In order to distinguish
-flower from donut, we should notice that ray traced from origin that is parallel to x-axis can change its' color only one in case shape is a donut. Otherwise, it's a donut.
+flower from donut, we should notice that ray traced from origin that is parallel to x-axis can change its' color only once in case shape is a donut. Otherwise, it's a flower.
 #### Cross vs. star
 They are all inscribed in a 5-gon so we can't break a tie by that. But, cross has noticeably less pixels so we can use ratio of convex hull area and number of pixels.
 #### Spiral
