@@ -11,3 +11,4 @@ Trying all rotations of all figures and simply trying to put them as low as poss
 ### Second subtask
 Trying DFS from first row for all rotations of all figures got maximum score. In order to optimize validation for moves or calculating score, we should use `numpy` built-in functions such as `bitwise_xor` and `multiply`.
 ## Problem D (Stars)
+The most interesting problem for this year even if it was a geometry problem. The most important part in forming an idea was to realize that distortion is simply an affine mapping. Affine mapping preserves barycenters so we should fine such one that mapps them elementwise.
