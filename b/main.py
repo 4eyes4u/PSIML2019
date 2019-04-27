@@ -2,10 +2,12 @@ import os
 import io
 import sys
 
+
 def detect_lang_from_path(path):
     for lang in langs:
         if lang in path:
             return lang
+
 
 def extract_bigrams_from_string(data):
     invalid = ['\r', '\n']
@@ -14,15 +16,18 @@ def extract_bigrams_from_string(data):
     for i, j in zip(range(1, str_len), range(str_len - 1)):
         if data[i] not in invalid and data[j] not in invalid:
             bigrams.append(''.join([data[j], data[i]]))
+
     return bigrams
+
 
 def extract_bigrams_from_file(file_path):
     # TODO: KEEP EYE ON ENCODING
     with io.open(file_path, 'r', encoding="utf-8") as f:
         data = f.read().lower()
         bigrams = extract_bigrams_from_string(data)
-    
+
     return bigrams
+
 
 def pick_best_sample(compress, k=5):
     '''
@@ -30,7 +35,9 @@ def pick_best_sample(compress, k=5):
     '''
     sample = [(val, key) for key, val in compress.items()]
     sample = sorted(sample, key=lambda entry: (-entry[0], entry[1]))
-    return sample[ : k]
+
+    return sample[: k]
+
 
 def compress_data(raw):
     '''
@@ -43,11 +50,13 @@ def compress_data(raw):
 
     return cnt
 
+
 def print_bigrams():
     for lang in langs:
         sample = pick_best_sample(data_compress[lang])
         for entry in sample:
             print('{},{},{}'.format(lang, entry[1], entry[0]))
+
 
 def calc_probs():
     '''
@@ -58,9 +67,10 @@ def calc_probs():
         for key, val in data_compress[lang].items():
             data_probs[lang].update({key: float(val) / float(total)})
 
+
 def text_prob(bigrams, p_langs_given_text):
     '''
-        P(text) = Product_{bi} Sum_{lang} #(bi[lang]) / ultimate_total 
+        P(text) = Product_{bi} Sum_{lang} #(bi[lang]) / ultimate_total
     '''
     for bi in bigrams:
         n_bi = 0
@@ -73,21 +83,26 @@ def text_prob(bigrams, p_langs_given_text):
             else:
                 p_langs_given_text[lang] = 0.0
 
-    return p_langs_given_text    
+    return p_langs_given_text
+
 
 def text_given_lang_prob(bigrams, lang_prob):
     p = 1.0
     for bi in bigrams:
         p = p * (lang_prob[bi] if bi in lang_prob else 0.0)
+
     return p
+
 
 def normalize(dict_prob):
     p_total = sum([p for p in dict_prob.values()])
     if p_total != 0:
         dict_prob = {key: p / p_total for key, p in dict_prob.items()}
+
     return dict_prob
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
         corpus_dir = input()
         langs = [lang for lang in os.listdir(corpus_dir)]
         n_langs = len(langs)
@@ -111,7 +126,7 @@ if __name__ == "__main__":
             data_compress[lang] = compress_data(data_raw[lang])
             data_total[lang] = sum([val for val in data_compress[lang].values()])
             ultimate_total += data_total[lang]
-        
+
         # PRINTING FIRST TASK
         print_bigrams()
 

@@ -7,13 +7,14 @@ from itertools import product as iter_product
 
 np.set_printoptions(threshold=np.inf)
 
+
 def parse_tetris_data(data):
-    board = np.zeros(shape=(H, W), dtype=np.int32)
+    board = np.zeros((H, W), dtype=np.int32)
     for i, j in iter_product(range(H), range(W)):
         board[i][j] = 1 if data[i][j] == '#' else 0
-    
+
     zero_len = 0
-    figures = []; block = []
+    figures, block = [], []
     for row in range(H, len(data)):
         cur_len = len(data[row])
         zero_len = zero_len + (1 if cur_len == 0 else 0)
@@ -27,18 +28,23 @@ def parse_tetris_data(data):
 
     return board, figures
 
+
 def rotate_single_figure(figure):
     rot_0 = np.copy(figure)
     rot_90 = np.flip(rot_0.T, axis=0)
     rot_180 = np.flip(rot_90.T, axis=0)
     rot_270 = np.flip(rot_180.T, axis=0)
+
     return [rot_0, rot_90, rot_180, rot_270]
+
 
 def rotate_figures(figures):
     figures_rotated = []
     for figure in figures:
         figures_rotated += rotate_single_figure(figure)
+
     return figures_rotated
+
 
 class FirstSubtask:
     def __init__(self, board, figures):
@@ -55,17 +61,19 @@ class FirstSubtask:
         score = np.sum(score)
         # removing figure
         self.board[row:row + h, col:col + w] = np.bitwise_xor(self.board[row:row + h, col:col + w], figure)
+
         return score
-    
+
     def _valid_move(self, row, col, figure):
         # elementwise product
         h, w = figure.shape
         match = np.sum(np.multiply(self.board[row:row + h, col:col + w], figure))
+
         return match == 0
 
     def single_shape(self, figure):
         h, w = figure.shape
-        scores = np.zeros(shape=(W - w + 1, ), dtype=np.int32)
+        scores = np.zeros((W - w + 1, ), dtype=np.int32)
         for col in range(W - w + 1):
             for row in range(H - h + 1):
                 # shape can't be placed here; previous move was last
@@ -89,7 +97,7 @@ class SecondSubtask:
         self.figures = figures
         self.n_figures = len(figures)
         self.best_figure_id = -1
-        self.mark = np.full(shape=(H, W), fill_value=-1, dtype=np.int32)
+        self.mark = np.full((H, W), fill_value=-1, dtype=np.int32)
         self.best_score = -1
         self.end_row = -1
         self.end_col = -1
@@ -105,6 +113,7 @@ class SecondSubtask:
         score = np.sum(score)
         # removing figure
         self.board[row:row + h, col:col + w] = np.bitwise_xor(self.board[row:row + h, col:col + w], figure)
+
         return score
 
     def _valid_move(self, row, col, figure):
@@ -114,6 +123,7 @@ class SecondSubtask:
             return False
         # matching between board and figure should not exist
         match = np.sum(np.multiply(self.board[row:row + h, col:col + w], figure))
+
         return match == 0
 
     def _dfs(self, row, col, figure_id):
@@ -131,16 +141,18 @@ class SecondSubtask:
                 if self._valid_move(row + 1, col + step, figure) and self.mark[row + 1][col + step] == -1:
                     self.mark[row + 1][col + step] = row * H + col
                     self._dfs(row + 1, col + step, figure_id)
-                else: break
-            
+                else:
+                    break
+
             for step in range(-1, -W, -1):
                 if self._valid_move(row + 1, col + step, figure) and self.mark[row + 1][col + step] == -1:
                     self.mark[row + 1][col + step] = row * H + col
                     self._dfs(row + 1, col + step, figure_id)
-                else: break
-    
+                else:
+                    break
+
     def _make_path(self, figure_id):
-        self.mark = np.full(shape=(H, W), fill_value=-1, dtype=np.int32)
+        self.mark = np.full((H, W), fill_value=-1, dtype=np.int32)
         for start_col in range(W):
             self._dfs(0, start_col, figure_id)
 
@@ -154,30 +166,31 @@ class SecondSubtask:
             path.append(cur_col - prev_col)
             cur_row = prev_row
             cur_col = prev_col
-        
-        path = path[ : : -1]
+
+        path = path[:: -1]
         print(figure_id // 4, figure_classes[figure_id % 4], cur_col, sep=' ', end=' ')
         print(*path, sep=' ')
 
     def solve(self):
         for i in range(self.n_figures):
-            self.mark = np.full(shape=(H, W), fill_value=-1, dtype=np.int32)
+            self.mark = np.full((H, W), fill_value=-1, dtype=np.int32)
             for col in range(W):
                 self._dfs(0, col, i)
-        
+
         self._make_path(self.best_figure_id)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     # constants
-    H = 20; W = 10
+    H, W = 20, 10
     figure_classes = ['0', '90', '180', '270']
-    
+
     tetris_path = input()
     with open(tetris_path, 'r') as f:
         data = f.read()
         data = ''.join(data)
         data = data.split('\n')
-    
+
     board, figures = parse_tetris_data(data)
     figures_rotated = rotate_figures(figures)
 
